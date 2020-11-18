@@ -6,6 +6,7 @@ import 'package:highspeedroad/five/custom_paint.dart';
 import 'package:highspeedroad/five/http_request.dart';
 import 'package:highspeedroad/five/pageview.dart';
 import 'package:highspeedroad/five/sliver_app_bar.dart';
+import 'package:highspeedroad/five/transform.dart';
 import 'file:///C:/Users/RSGAMES-2/AndroidStudioProjects/highspeedroad/lib/five/animation_listen.dart';
 import 'file:///C:/Users/RSGAMES-2/AndroidStudioProjects/highspeedroad/lib/five/other_setting.dart';
 import '../five/fade_image.dart';
@@ -22,6 +23,9 @@ class Five extends StatefulWidget {
 class FiveState extends State<Five> with SingleTickerProviderStateMixin {
   dynamic ctx;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isShowSnackBar = false;
+
+  bool isClick = false;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +37,18 @@ class FiveState extends State<Five> with SingleTickerProviderStateMixin {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Color.fromRGBO(212, 212, 212, 1),
-      body: ListView.builder(
-        itemCount: setttingList.length,
-        itemBuilder: (context, index) {
-          return itemView(index);
-        },
+
+      /// AbsorbPointer 可以控制底下所有【點擊事件】
+      /// true -> 不可點擊
+      /// false -> 可點擊
+      body: AbsorbPointer(
+        absorbing: false,
+        child: ListView.builder(
+          itemCount: setttingList.length,
+          itemBuilder: (context, index) {
+            return itemView(index);
+          },
+        ),
       ),
     );
   }
@@ -49,40 +60,157 @@ class FiveState extends State<Five> with SingleTickerProviderStateMixin {
       child: FlatButton(
         child: Column(
           children: [
-            Row(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Icon(
-                    setttingList[index].icon,
-                    size: 40,
-                    color: Colors.orange,
+            /// 每個 item 包著 Tooltip
+            Tooltip(
+              /// 按著會顯示內容
+              message: 'Show Message',
+              height: 50.0,
+
+              /// 顯示位置 false -> 上方 ， true ->　下方
+              preferBelow: false,
+
+              /// 和 child 的距離
+              verticalOffset: 40.0,
+              child: Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: 20),
+                    child: Icon(
+                      setttingList[index].icon,
+                      size: 40,
+                      color: Colors.orange,
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    setttingList[index].title,
-                    style: TextStyle(fontSize: 20),
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      setttingList[index].title,
+                      style: TextStyle(fontSize: 20),
+                    ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.grey,
-                  ),
-                )
-              ],
+                  Container(
+                    margin: EdgeInsets.only(right: 20),
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.grey,
+                    ),
+                  )
+                ],
+              ),
             ),
             line()
           ],
         ),
         onPressed: () {
-          setttingList[index].click(ctx);
+          switch (index) {
+            case 0:
+              snackbar(ctx);
+              break;
+            default:
+              setttingList[index].click(ctx);
+              break;
+          }
         },
       ),
     );
+  }
+
+  ///  功能列表
+  List<SettingItem> setttingList = <SettingItem>[
+    /// 自訂 Snackbar 的 UI
+    SettingItem(Icons.chat_bubble_outline, 'SnackBar', () {}),
+
+    /// 控制物件的 【絕對座標】
+    SettingItem(Icons.access_time, 'listen 絕對座標控制物件', animationListen),
+
+    /// Http 請求，利用 async && await
+    SettingItem(Icons.attach_money, 'Http請求 async await', futureBuilder),
+
+    /// 自訂 Dialog
+    SettingItem(Icons.party_mode, 'Dialog', ticketManage),
+
+    /// PageView ( 滑動功能，類似 Android 的 ViewPager )
+    SettingItem(Icons.content_copy, 'ViewPager', pageView),
+
+    /// Table ( 避免 Column + Row 的寫法 )
+    SettingItem(Icons.assignment, 'Table', showTable),
+
+    /// GestureDetector 監聽
+    SettingItem(
+        Icons.notifications_active, 'GestureDetector 監聽', gestureDetector),
+
+    /// SliverAppBar
+    SettingItem(Icons.person, 'SliverAppBar', sliverAppBar),
+
+    /// FadeImage 加載圖片 URL
+    SettingItem(Icons.airline_seat_recline_extra, 'FadeInImage', fadeInImage),
+
+    /// async* Stream yield 異步處理 【假的 API 請求】
+    SettingItem(Icons.settings, 'async* Stream yield', otherSetting),
+
+    /// CustomPainter ( Paint & canvas )
+    /// 【五子棋】
+    SettingItem(Icons.assignment_late, 'CustomPainter 五子棋', customPaint),
+
+    /// Transform ( Widget 轉換 )
+    SettingItem(Icons.assignment, 'Transform', transform),
+
+    SettingItem(Icons.help_outline, '空', empty),
+    SettingItem(Icons.train, '空', empty),
+    SettingItem(Icons.content_copy, '空', empty),
+  ];
+
+  snackbar(BuildContext context) {
+    if (!isShowSnackBar) {
+      isShowSnackBar = true;
+      Scaffold.of(context)
+          .showSnackBar(
+            SnackBar(
+              /// 【背景顏色】
+              backgroundColor: Colors.white,
+
+              /// 【持續時間】
+              duration: Duration(seconds: 2),
+
+              /// 【顯示方式】
+              /// floating -> 不貼底部，浮出
+              /// fixed -> 緊貼底部，彈出
+              behavior: SnackBarBehavior.floating,
+
+              /// 【形狀】 -> 圓角矩形
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20))),
+
+              /// 【右側按鈕】，按下後會自動關閉 SnackBar
+              action: SnackBarAction(
+                textColor: Colors.orange,
+                label: "Action",
+                onPressed: () {
+                  print('Click Action');
+                },
+              ),
+
+              /// 【內容】 Widget
+              content: Wrap(
+                children: [
+                  Center(
+                    child: Text(
+                      '成  功',
+                      style: TextStyle(fontSize: 22, color: Colors.black),
+                    ),
+                  )
+                ],
+              ),
+            ),
+
+            /// 監聽 SnackBar 關閉後的回調
+          )
+          .closed
+          .then((value) {
+        print(value);
+        isShowSnackBar = false;
+      });
+    }
   }
 }
 
@@ -97,70 +225,6 @@ class SettingItem {
   final Function click;
 
   SettingItem(this.icon, this.title, this.click);
-}
-
-///  功能列表
-///  Todo 丟入 click Function
-List<SettingItem> setttingList = <SettingItem>[
-  /// 自訂 Snackbar 的 UI
-  SettingItem(Icons.chat_bubble_outline, 'SnackBar', snackbar),
-
-  /// 控制物件的 【絕對座標】
-  SettingItem(Icons.access_time, 'listen 絕對座標控制物件', animationListen),
-
-  /// Http 請求，利用 async && await
-  SettingItem(Icons.attach_money, 'Http請求 async await', futureBuilder),
-
-  /// 自訂 Dialog
-  SettingItem(Icons.party_mode, 'Dialog', ticketManage),
-
-  /// PageView ( 滑動功能，類似 Android 的 ViewPager )
-  SettingItem(Icons.content_copy, 'ViewPager', pageView),
-
-  /// Table ( 避免 Column + Row 的寫法 )
-  SettingItem(Icons.assignment, 'Table', showTable),
-
-  /// GestureDetector 監聽
-  SettingItem(
-      Icons.notifications_active, 'GestureDetector 監聽', gestureDetector),
-
-  /// SliverAppBar
-  SettingItem(Icons.person, 'SliverAppBar', sliverAppBar),
-
-  /// FadeImage 加載圖片 URL
-  SettingItem(Icons.airline_seat_recline_extra, 'FadeInImage', fadeInImage),
-
-  /// async* Stream yield 異步處理 【假的 API 請求】
-  SettingItem(Icons.settings, 'async* Stream yield', otherSetting),
-
-  /// CustomPainter ( Paint & canvas )
-  /// 【五子棋】
-  SettingItem(Icons.assignment_late, 'CustomPainter 五子棋', customPaint),
-
-
-  SettingItem(Icons.assignment, '空', empty),
-  SettingItem(Icons.help_outline, '空', empty),
-  SettingItem(Icons.train, '空', empty),
-  SettingItem(Icons.content_copy, '空', empty),
-];
-
-snackbar(BuildContext context) {
-  Scaffold.of(context).showSnackBar(
-    SnackBar(
-      backgroundColor: Colors.white,
-      duration: Duration(milliseconds: 500),
-      content: Wrap(
-        children: [
-          Container(
-            child: Text(
-              '成功',
-              style: TextStyle(fontSize: 22, color: Colors.black),
-            ),
-          )
-        ],
-      ),
-    ),
-  );
 }
 
 animationListen(BuildContext context) {
@@ -215,8 +279,12 @@ fadeInImage(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => FadeImage()));
 }
 
-customPaint(BuildContext context){
+customPaint(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => CustomP()));
+}
+
+transform(BuildContext context) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) => Trans()));
 }
 
 empty() {}

@@ -43,40 +43,41 @@ class _MyHomePageState extends StatelessWidget {
       length: tabList.length,
       child: Scaffold(
         backgroundColor: Color.fromRGBO(209, 209, 209, 1),
-          resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: false,
 
-          /// fragment 五個畫面
-          body: TabBarView(
-            children: [One(), Two(), Three(context), Four(), Five()],
+        /// fragment 五個畫面
+        body: TabBarView(
+          children: [One(), Two(), Three(context), Four(), Five()],
+        ),
+
+        /// 下方列表
+        bottomNavigationBar: Container(
+          height: 60,
+          color: Colors.white,
+          alignment: Alignment.center,
+          child: TabBar(
+            tabs: tabList.map((choice) {
+              return Container(
+                child: Column(
+                  children: [
+                    Icon(
+                      choice.icon,
+                      size: 24,
+                    ),
+                    Text(
+                      choice.title,
+                      style: TextStyle(fontSize: 10),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+            indicatorColor: Colors.transparent,
+            labelColor: Colors.orange,
+            unselectedLabelColor: Colors.grey,
           ),
-
-          /// 下方列表
-          bottomNavigationBar: Container(
-            height: 60,
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: TabBar(
-              tabs: tabList.map((choice) {
-                return Container(
-                  child: Column(
-                    children: [
-                      Icon(
-                        choice.icon,
-                        size: 24,
-                      ),
-                      Text(
-                        choice.title,
-                        style: TextStyle(fontSize: 10),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              indicatorColor: Colors.transparent,
-              labelColor: Colors.orange,
-              unselectedLabelColor: Colors.grey,
-            ),
-          )),
+        ),
+      ),
     );
   }
 }

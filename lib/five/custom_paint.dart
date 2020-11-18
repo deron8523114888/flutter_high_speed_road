@@ -22,87 +22,93 @@ class CustomPState extends State<CustomP> {
 
   bool isFinishGame = false;
 
+  bool isShowSnackBar = false;
+
   @override
   Widget build(BuildContext context) {
     mypainter = MyPainter(black, white);
 
     return Scaffold(
-        body: Builder(
-      builder: (context) => Center(
+      body: Builder(
+        builder: (context) => Center(
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                width: 2,
-                color: Colors.black,
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(10),
-              ),
-            ),
-            child: FlatButton(
-              onPressed: () {
-                isFinishGame = false;
-                isBlack = true;
-                black.clear();
-                white.clear();
-                setState(() {});
-              },
-              child: Text(
-                '重開一局',
-                style: TextStyle(
-                  fontSize: 24,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: FlatButton(
+                  onPressed: () {
+                    isFinishGame = false;
+                    isBlack = true;
+                    black.clear();
+                    white.clear();
+                    setState(() {});
+                  },
+                  child: Text(
+                    '重開一局',
+                    style: TextStyle(
+                      fontSize: 24,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          /// 棋盤
-          Listener(
-            child: CustomPaint(
-              /// 可畫的範圍，若有 child 則忽略
-              size: Size(300, 300),
-              painter: mypainter,
-            ),
+              /// 棋盤
+              Listener(
+                child: CustomPaint(
+                  /// 可畫的範圍，若有 child 則忽略
+                  size: Size(300, 300),
+                  painter: mypainter,
+                ),
 
-            /// 每次點擊
-            onPointerDown: (event) {
-              if (!isFinishGame) {
-                var offset = localPositionTransform(
-                    event.localPosition.dx, event.localPosition.dy) as Offset;
-                if (black.contains(offset) || white.contains(offset)) {
-                  showSnackBar(context, '該位置有棋子了!');
-                  return;
-                }
+                /// 每次點擊
+                onPointerDown: (event) {
+                  if (!isFinishGame) {
+                    var offset = localPositionTransform(
+                            event.localPosition.dx, event.localPosition.dy)
+                        as Offset;
+                    if (black.contains(offset) || white.contains(offset)) {
+                      showSnackBar(context, '該位置有棋子了!');
+                      return;
+                    }
 
-                if (isBlack) {
-                  black.add(offset);
-                  if (detectIsWin(offset, black)) {
-                    finishGame(context, "【Finish】\n\nBlack Win");
-                    isFinishGame = true;
+                    if (isBlack) {
+                      black.add(offset);
+                      if (detectIsWin(offset, black)) {
+                        finishGame(context, "【Finish】\n\nBlack Win");
+                        isFinishGame = true;
+                      }
+                    } else {
+                      white.add(offset);
+                      if (detectIsWin(offset, white)) {
+                        finishGame(context, "【Finish】\n\nWhite Win");
+                        isFinishGame = true;
+                      }
+                    }
+
+                    setState(() {});
+                    isBlack = !isBlack;
+                  } else {
+                    showSnackBar(context, '遊戲已結束，請重開一局');
                   }
-                } else {
-                  white.add(offset);
-                  if (detectIsWin(offset, white)) {
-                    finishGame(context, "【Finish】\n\nWhite Win");
-                    isFinishGame = true;
-                  }
-                }
-
-                setState(() {});
-                isBlack = !isBlack;
-              } else {
-                showSnackBar(context, '遊戲已結束，請重開一局');
-              }
-            },
+                },
+              ),
+            ],
           ),
-        ],
-      )),
-    ));
+        ),
+      ),
+    );
   }
 
+  /// 找最近的落子座標
   localPositionTransform(double x, double y) {
     var resultX = (x / 20).round() * 20.toDouble();
     var resultY = (y / 20).round() * 20.toDouble();
@@ -110,12 +116,18 @@ class CustomPState extends State<CustomP> {
   }
 
   showSnackBar(BuildContext ctx, String msg) async {
-    Scaffold.of(ctx).showSnackBar(
-      SnackBar(
-        duration: Duration(milliseconds: 500),
-        content: Text(msg),
-      ),
-    );
+    if (!isShowSnackBar) {
+      isShowSnackBar = true;
+      Scaffold.of(ctx)
+          .showSnackBar(
+            SnackBar(
+              duration: Duration(milliseconds: 500),
+              content: Text(msg),
+            ),
+          )
+          .closed
+          .then((value) => isShowSnackBar = false);
+    }
   }
 }
 
@@ -148,8 +160,7 @@ class MyPainter extends CustomPainter {
     /// 畫橫線
     for (int i = 0; i <= 15; ++i) {
       /// drawLine ( 起點 , 終點 , 畫筆 )
-      canvas.drawLine(
-          Offset(0, eHeight * i), Offset(size.width, eHeight * i), paint);
+      canvas.drawLine(Offset(0, eHeight * i), Offset(size.width, eHeight * i), paint);
     }
 
     /// 畫直線

@@ -83,6 +83,7 @@ Container forChoose(String title, Alignment selectAlignment,
     color: Colors.white,
     child: Row(
       children: [
+        /// title
         Expanded(
           flex: 1,
           child: Container(
@@ -92,36 +93,51 @@ Container forChoose(String title, Alignment selectAlignment,
             ),
           ),
         ),
+
+        /// 單程票 / 去回票
         Expanded(
           flex: 3,
-          child: Container(
-            margin: EdgeInsets.only(left: 30),
-            padding: EdgeInsets.all(5),
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 0.5),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                color: Colors.white),
-            child: Stack(
-              alignment: selectAlignment,
-              children: [
-                Container(
-                  width: 120,
-                  height: 50,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.orange, width: 0.5),
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      color: Colors.orange),
+          // 堆疊【兩個按鈕】和【動畫橘色區塊】
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // 動畫橘色區塊
+              AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                width: 260,
+                margin: EdgeInsets.only(left: 30),
+                padding: EdgeInsets.all(5),
+                alignment: selectAlignment,
+                child: Wrap(
+                  children: [
+                    Container(
+                      width: 110,
+                      height: 50,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.orange, width: 0.5),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.orange),
+                    ),
+                  ],
                 ),
-                Container(
-                  child: Row(
-                    children: [
-                      Expanded(flex: 1, child: leftButton),
-                      Expanded(flex: 1, child: rightButton),
-                    ],
-                  ),
+              ),
+              // 邊框和兩個按鈕
+              Container(
+                width: 260,
+                margin: EdgeInsets.only(left: 30),
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 0.5),
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    color: Colors.transparent),
+                child: Row(
+                  children: [
+                    Expanded(flex: 1, child: leftButton),
+                    Expanded(flex: 1, child: rightButton),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         )
       ],

@@ -1,120 +1,138 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Forget extends StatefulWidget {
+class PageTwo extends Scaffold {
+
+  Function() back;
+  bool visible ;
+
+  PageTwo(this.back,this.visible);
+
+
   @override
-  State<StatefulWidget> createState() {
-    return ForgetState();
-  }
-}
+  Color get backgroundColor => Color.fromRGBO(218, 218, 218, 1);
 
-class ForgetState extends State<Forget> {
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(218, 218, 218, 1),
-      body: SingleChildScrollView(
-        child: Container(
-          child: Column(
-            children: [
-              /// 頂部
-              Container(
-                color: Colors.orange,
-                alignment: Alignment.bottomLeft,
-                height: 80,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    /// 返回
-                    back(context),
+  Widget get body {
+    return SingleChildScrollView(
+      child: Container(
+        child: Column(
+          children: [
+            /// 頂部
+            Container(
+              color: Colors.orange,
+              alignment: Alignment.bottomLeft,
+              height: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  /// 返回
+                  backBtn(),
 
-                    /// 查詢訂位代號
-                    textTitle(),
+                  /// 查詢訂位代號
+                  textTitle(),
 
-                    /// 完成
-                    finish(context)
-                  ],
-                ),
+                  /// 完成
+                  finish()
+                ],
               ),
+            ),
 
-              /// 內文
-              Container(
-                color: Colors.white,
-                width: double.infinity,
-                padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    // 起訖車站
-                    startStation(),
-                    line(),
+            /// 內文
+            Container(
+              color: Colors.white,
+              width: double.infinity,
+              padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+              child: Column(
+                children: [
+                  // 起訖車站
+                  startStation(),
+                  line(),
 
-                    // 發車日期
-                    startDate(),
-                    line(),
+                  // 發車日期
+                  startDate(),
+                  line(),
 
-                    // 車次號碼
-                    carNumber(),
-                    line(),
+                  // 車次號碼
+                  carNumber(),
+                  line(),
 
-                    // 提示文字
-                    info(),
+                  // 提示文字
+                  info(),
 
-                    Column(
-                      children: [nation('本國籍'), nation('外國籍')],
-                    )
-                  ],
-                ),
+                  Column(
+                    children: [nation('本國籍'), nation('外國籍')],
+                  )
+                ],
               ),
+            ),
 
-              /// 底部
-              bottom(),
-            ],
-          ),
+            /// 底部
+            bottom(),
+          ],
         ),
       ),
     );
   }
-}
 
-FlatButton back(BuildContext context) {
-  return FlatButton(
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Icon(Icons.arrow_back, size: 26),
-        Text(
-          '返回',
+  AnimatedOpacity backBtn() {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 300),
+      opacity: visible ? 1.0 : 0.0,
+      child: FlatButton(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Icon(Icons.arrow_back, size: 26),
+            Text(
+              '返回',
+              style: TextStyle(fontSize: 20),
+            ),
+          ],
+        ),
+        onPressed: () {
+//          back();
+        },
+      ),
+    );
+  }
+
+  AnimatedOpacity textTitle() {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 300),
+      opacity: visible ? 1.0 : 0.0,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 4),
+        child: Text(
+          '查詢訂位代號',
+          style: TextStyle(fontSize: 24, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  AnimatedOpacity finish() {
+    return AnimatedOpacity(
+      duration: Duration(milliseconds: 300),
+      opacity: visible ? 1.0 : 0.0,
+      child: FlatButton(
+        child: Text(
+          '完成',
           style: TextStyle(fontSize: 20),
         ),
-      ],
-    ),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  );
+        onPressed: () {
+
+        },
+      ),
+    );
+  }
+
 }
 
-Container textTitle() {
-  return Container(
-    margin: EdgeInsets.only(bottom: 4),
-    child: Text(
-      '查詢訂位代號',
-      style: TextStyle(fontSize: 24, color: Colors.white),
-    ),
-  );
-}
 
-FlatButton finish(BuildContext context) {
-  return FlatButton(
-    child: Text(
-      '完成',
-      style: TextStyle(fontSize: 20),
-    ),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  );
-}
 
 /// 起訖車站
 Container startStation() {

@@ -25,6 +25,8 @@ class ViewPagerState extends State<ViewPager>{
         controller: controller,
         /// 可控制【垂直滑動】【水平滑動】
         scrollDirection: Axis.vertical,
+        /// 控制是否可滑動
+//        physics: NeverScrollableScrollPhysics(),
         children: [
           page1(),
           page2(),
@@ -36,13 +38,18 @@ class ViewPagerState extends State<ViewPager>{
 
   Center page1 (){
     return Center(
-      child: Text(
-        '這是Page1',
-        style: TextStyle(
-            fontSize: 22,
-            color: Colors.black
+      child: FlatButton(
+        onPressed: (){
+          controller.animateToPage(1, duration: Duration(seconds: 1), curve: Curves.linear);
+        },
+        child: Text(
+          '這是Page1',
+          style: TextStyle(
+              fontSize: 22,
+              color: Colors.black
+          ),
         ),
-      ),
+      )
     );
   }
   Center page2 (){
