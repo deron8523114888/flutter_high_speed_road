@@ -2,35 +2,35 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:highspeedroad/five/transform/turn_over_page.dart';
 
-/// Matrix4 ( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,) 代表 4X4 矩陣
-/// 1~4 [ X 縮放, y延長, XX, XX ]
-/// 5~8 [ X 延長, Y 縮放, XX, XX ]
-/// 9~12 [ XX, XX, Z 縮放, XX ]
-/// 13~16 [ x平移, y平移, z平移, 縮小倍數(負數會上下左右顛倒) ]
-
-/// 縮放至少要 1 才會有圖 => (1,0,0,0, 0,1,0,0, 0,0,0,0, 0,0,0,1)
-
+/// 每一個 Transform 搭配 AnimatedBuilder 改為動畫轉換
 class Trans extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => TransState();
 }
 
-class TransState extends State<Trans> {
-  double rotateValue = 0;
+class TransState extends State<Trans> with TickerProviderStateMixin {
 
-  bool animationControll = false;
+  bool isAnimating = false;
 
-  bool direction = true;
-
+  /// 翻牌子數值設定 ( 調整後需要重進頁面，hotreload 沒用)
+  // 文字
   int value = 0;
 
-  /// 翻牌子數值設定
-  // 70 可顯示 1 位數
-  // 60 可顯示 2 位數
+  // 文字大小
   double textSize = 60.0;
-  // 翻牌延遲速度 (microSec) -> 數值越大越慢
-  int speed = 1000;
+
+  // 延遲速度 (milliseconds) -> 數值越大越慢
+  int speed = 500;
+
+  // 翻開的控制器
+  AnimationController openController;
+
+  // 蓋上的控制器
+  AnimationController closeController;
+
+  final key = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +41,7 @@ class TransState extends State<Trans> {
             child: Column(
               children: [
                 FlatButton(
-                  onPressed: () {
-                    animationControll = !animationControll;
-                    startrotation();
-                  },
+                  onPressed: () {},
                   child: Text(
                     '動畫開始/停止',
                     style: TextStyle(fontSize: 22),
@@ -55,24 +52,29 @@ class TransState extends State<Trans> {
                     slivers: <Widget>[
                       SliverGrid(
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3),
+                            crossAxisCount: 2),
                         delegate: SliverChildListDelegate(
                           [
-                            /// 旋轉
-                            rotate(),
 
-                            /// 縮放
+                            /// 【旋轉】
+                            staticRotate(),
+                            animatedRotate(),
+
+                            /// 【縮放】
                             scale(),
+                            animatedScale(),
 
-                            /// 移動
-                            /// X 往右方向為正，Y 往下方向為正
+                            /// 【移動】
                             translate(),
+                            animatedTranslate(),
 
-                            /// 【延長】底部或右側 ( skewX skewY skew )
+                            /// 【延伸】底部或右側 ( skewX skewY skew )
                             skew(),
+                            animatedSkew(),
 
                             /// 【縮放】 利用三維座標軸
                             diagonal3Values(),
+                            animatedDiagonal3Values(),
 
                             /// 【繞 X 軸翻轉】
                             rotateToX(),
@@ -81,7 +83,23 @@ class TransState extends State<Trans> {
                             rotateToY(),
 
                             /// 【翻頁動畫】
-                            page(),
+                            TurnOverPage(),
+
+                            /// 也是縮放用
+//                            SizeTransition(
+//                              sizeFactor: animation,
+//                              child: Container(
+//                                width: double.infinity,
+//                                height: 81,
+//                                child: Column(
+//                                  children: [
+//                                    Expanded(
+//                                      child: Text('回程時間'),
+//                                    ),
+//                                  ],
+//                                ),
+//                              ),
+//                            ),
                           ],
                         ),
                       )
@@ -92,7 +110,7 @@ class TransState extends State<Trans> {
             )));
   }
 
-  Container rotate() {
+  Container staticRotate() {
     return Container(
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(
@@ -100,6 +118,30 @@ class TransState extends State<Trans> {
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Transform.rotate(
         angle: pi / 4,
+        child: Icon(
+          Icons.sports_baseball,
+          size: 60,
+        ),
+      ),
+    );
+  }
+
+  Container animatedRotate() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 3))
+      ..repeat();
+    var animation = Tween(begin: 0, end: 2 * pi).animate(controller);
+    return Container(
+      margin: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return Transform.rotate(
+              angle: animation.value.toDouble(), child: child);
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -124,6 +166,28 @@ class TransState extends State<Trans> {
     );
   }
 
+  Container animatedScale() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 3))
+      ..repeat();
+    var animation = Tween(begin: 1.0, end: 0.0).animate(controller);
+    return Container(
+        margin: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+            border: Border.all(width: 3),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            return Transform.scale(scale: animation.value, child: child);
+          },
+          child: Icon(
+            Icons.sports_baseball,
+            size: 60,
+          ),
+        ));
+  }
+
   Container translate() {
     return Container(
       margin: EdgeInsets.all(5),
@@ -131,7 +195,33 @@ class TransState extends State<Trans> {
           border: Border.all(width: 3),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Transform.translate(
-        offset: Offset(20, 20),
+
+        /// X 往右方向為正，Y 往下方向為正
+        offset: Offset(40, 40),
+        child: Icon(
+          Icons.sports_baseball,
+          size: 60,
+        ),
+      ),
+    );
+  }
+
+  Container animatedTranslate() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 1))
+      ..repeat();
+    var animation = Tween(begin: 0.0, end: 40).animate(controller);
+    return Container(
+      margin: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return Transform.translate(
+              offset: Offset(animation.value, animation.value), child: child);
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -147,10 +237,40 @@ class TransState extends State<Trans> {
           border: Border.all(width: 3),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Transform(
+
         /// 調整 skew( X 延伸自身 width 的倍數, Y 延伸自身 height 的倍數 )
         /// 正倍數 -> 向 右 和 下
         /// 負倍數 -> 向 左 和 上
-        transform: Matrix4.skew(0.3, 0),
+        transform: Matrix4.skew(0.4, 0),
+        child: Icon(
+          Icons.sports_baseball,
+          size: 60,
+        ),
+      ),
+    );
+  }
+
+  Container animatedSkew() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 1))
+      ..repeat();
+    var animation = Tween(begin: 0.0, end: 0.5).animate(controller);
+    return Container(
+      margin: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return Transform(
+
+            /// skew( X 延伸自身 width 的倍數, Y 延伸自身 height 的倍數 )
+            /// X 向右為正，Y 向下為正
+            transform: Matrix4.skew(animation.value, 0),
+            child: child,
+          );
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -166,8 +286,44 @@ class TransState extends State<Trans> {
           border: Border.all(width: 3),
           borderRadius: BorderRadius.all(Radius.circular(10))),
       child: Transform(
+
         /// x y 變形倍數
-        transform: Matrix4.diagonal3Values(0.5, 1.4, 1),
+        transform: Matrix4.diagonal3Values(0.5, 1.5, 1),
+        child: Icon(
+          Icons.sports_baseball,
+          size: 60,
+        ),
+      ),
+    );
+  }
+
+  Container animatedDiagonal3Values() {
+    // Todo 動畫 X 結束再執行 動畫 Y
+    var controllerX =
+    AnimationController(vsync: this, duration: Duration(seconds: 2))
+      ..repeat();
+    var animationX = Tween(begin: 1.0, end: 0.5).animate(controllerX);
+
+    var controllerY =
+    AnimationController(vsync: this, duration: Duration(seconds: 2))
+      ..repeat();
+    var animationY = Tween(begin: 1.0, end: 1.5).animate(controllerY);
+
+    return Container(
+      margin: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+          border: Border.all(width: 3),
+          borderRadius: BorderRadius.all(Radius.circular(10))),
+      child: AnimatedBuilder(
+        animation: animationX,
+        builder: (context, child) {
+          return Transform(
+
+            /// x y 變形倍數
+              transform: Matrix4.diagonal3Values(
+                  animationX.value, animationY.value, 1),
+              child: child);
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -177,16 +333,25 @@ class TransState extends State<Trans> {
   }
 
   Container rotateToX() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 3))
+      ..repeat();
+    var animation = Tween(begin: 0.0, end: 2 * pi).animate(controller);
     return Container(
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(
           border: Border.all(width: 3),
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      child: Transform(
-        transform: Matrix4.identity()
-          ..setEntry(3, 2, 0.03)
-          ..rotateX(rotateValue),
-        alignment: FractionalOffset.center,
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return Transform(
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.03)
+                ..rotateX(animation.value),
+              alignment: FractionalOffset.center,
+              child: child);
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -196,16 +361,25 @@ class TransState extends State<Trans> {
   }
 
   Container rotateToY() {
+    var controller =
+    AnimationController(vsync: this, duration: Duration(seconds: 3))
+      ..repeat();
+    var animation = Tween(begin: 0.0, end: 2 * pi).animate(controller);
     return Container(
       margin: EdgeInsets.all(5),
       decoration: BoxDecoration(
           border: Border.all(width: 3),
           borderRadius: BorderRadius.all(Radius.circular(10))),
-      child: Transform(
-        transform: Matrix4.identity()
-          ..setEntry(3, 2, 0.03)
-          ..rotateY(rotateValue),
-        alignment: FractionalOffset.center,
+      child: AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) {
+          return Transform(
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.03)
+                ..rotateY(animation.value),
+              alignment: FractionalOffset.center,
+              child: child);
+        },
         child: Icon(
           Icons.sports_baseball,
           size: 60,
@@ -214,159 +388,4 @@ class TransState extends State<Trans> {
     );
   }
 
-  page() {
-    return Container(
-      margin: EdgeInsets.all(5),
-      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-      decoration: BoxDecoration(
-        border: Border.all(width: 3),
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Container(
-        child: Stack(
-          children: [pageBackgroundPart(), pageAnimationPart()],
-        ),
-      ),
-    );
-  }
-
-  startrotation() async {
-    while (animationControll) {
-      await Future.delayed(Duration(microseconds: speed));
-      rotateValue += pi / 180;
-
-      /// 【翻開】 角度為 ： 0 -> pi/2
-      if (direction && rotateValue >= pi / 2) {
-        direction = false;
-        rotateValue = -pi / 2;
-      }
-
-      /// 【蓋上】 角度為 : -pi/2 -> 0
-      if (!direction && rotateValue >= 0) {
-        value++;
-        if(value == 99) value = 0 ;
-        direction = true;
-        rotateValue = 0;
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-      setState(() {});
-    }
-  }
-
-  Column pageAnimationPart() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Transform(
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, -0.004)
-            ..rotateX(direction ? pi / 2 : rotateValue),
-          alignment: FractionalOffset.bottomCenter,
-          child: ClipRect(
-            child: Align(
-              alignment: Alignment.topCenter,
-              heightFactor: 0.5,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(width: 3),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(5),
-                    topRight: Radius.circular(5),
-                  ),
-                ),
-                child: Text(
-                  (value + 1).toString(),
-                  style: TextStyle(fontSize: textSize, color: Colors.yellow),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Padding(padding: EdgeInsets.all(0.5)),
-        Transform(
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, -0.004)
-            ..rotateX(direction ? rotateValue : pi / 2),
-          alignment: FractionalOffset.topCenter,
-          child: ClipRect(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              heightFactor: 0.5,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  border: Border.all(width: 3),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(5),
-                    bottomRight: Radius.circular(5),
-                  ),
-                ),
-                child: Text(
-                  value.toString(),
-                  style: TextStyle(fontSize: textSize, color: Colors.yellow),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Column pageBackgroundPart() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ClipRect(
-          child: Align(
-            /// 取得上半部文字
-            alignment: Alignment.topCenter,
-            heightFactor: 0.5,
-            child: Container(
-              width: 80,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(width: 3),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(5),
-                  topRight: Radius.circular(5),
-                ),
-              ),
-              child: Text(
-                value.toString(),
-                style: TextStyle(fontSize: textSize, color: Colors.yellow),
-              ),
-            ),
-          ),
-        ),
-        Padding(padding: EdgeInsets.all(0.5)),
-        ClipRect(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            heightFactor: 0.5,
-            child: Container(
-              width: 80,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(width: 3),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(5),
-                  bottomRight: Radius.circular(5),
-                ),
-              ),
-              child: Text(
-                (value + 1).toString(),
-                style: TextStyle(fontSize: textSize, color: Colors.yellow),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }

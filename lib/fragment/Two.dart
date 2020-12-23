@@ -37,6 +37,8 @@ class TwoState extends State<Two> {
 
   dynamic h = 30.0;
 
+  bool isGoBack = false;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -67,18 +69,23 @@ class TwoState extends State<Two> {
                 line(),
 
                 /// 回程時間  => 若選擇【去回票】時才顯示
-                AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  width: double.infinity,
-                  height: animationHeight,
-                  child: Column(
+
+                AnimatedCrossFade(
+                  /// 設定 child one
+                  firstChild: Container(),
+                  /// 設定 child two
+                  secondChild: Column(
                     children: [
-                      Expanded(
-                        child: forColume3And4('回程時間', '請選擇回程日期'),
-                      ),
-                      line()
+                      forColume3And4('回程時間', '請選擇回程日期'),
+                      line(),
                     ],
                   ),
+                  /// 判斷 show 哪一個 child
+                  crossFadeState: isGoBack
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  /// 動畫時間
+                  duration: Duration(milliseconds: 500),
                 ),
 
                 /// 車廂種類
@@ -112,6 +119,7 @@ class TwoState extends State<Two> {
     returnTicketColor = Colors.grey;
     textColor = Colors.black;
     animationHeight = 0.0;
+    isGoBack = false;
     setState(() {});
   }
 
@@ -122,6 +130,7 @@ class TwoState extends State<Two> {
     returnTicketColor = Colors.white;
     textColor = Colors.orange;
     animationHeight = 81.0;
+    isGoBack = true;
     setState(() {});
   }
 

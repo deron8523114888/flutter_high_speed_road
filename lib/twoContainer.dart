@@ -65,9 +65,9 @@ Container forColumeOne() {
   );
 }
 
-Container line() {
+Container line({height = 1.0}) {
   return Container(
-    height: 1,
+    height: height,
     color: Colors.white,
     child: Container(
       margin: EdgeInsets.only(left: 20),
@@ -110,13 +110,15 @@ Container forChoose(String title, Alignment selectAlignment,
                 alignment: selectAlignment,
                 child: Wrap(
                   children: [
-                    Container(
-                      width: 110,
-                      height: 50,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orange, width: 0.5),
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.orange),
+                    FractionallySizedBox(
+                      widthFactor: 0.5,
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.orange, width: 0.5),
+                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                            color: Colors.orange),
+                      ),
                     ),
                   ],
                 ),
