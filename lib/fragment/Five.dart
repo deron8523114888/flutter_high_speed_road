@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:highspeedroad/Animation.dart';
 import 'package:highspeedroad/dialog/ticket_manager_dialog.dart';
-import 'file:///C:/Users/RSGAMES-2/AndroidStudioProjects/highspeedroad/lib/five/dialogpage/swipe_dialog.dart';
 import 'package:highspeedroad/five/color_filtered.dart';
 import 'package:highspeedroad/five/cupertino_action_sheet.dart';
 import 'package:highspeedroad/five/custom_paint.dart';
@@ -15,7 +14,8 @@ import 'package:highspeedroad/five/progress.dart';
 import 'package:highspeedroad/five/pageview.dart';
 import 'package:highspeedroad/five/sliver_app_bar.dart';
 import 'package:highspeedroad/five/state_test.dart';
-import 'package:highspeedroad/five/tack_photo_gallery.dart';
+import 'package:highspeedroad/five/take_photo_gallery.dart';
+import 'package:highspeedroad/five/timer.dart';
 import 'package:highspeedroad/five/transform.dart';
 import 'package:highspeedroad/five/transition.dart';
 import 'package:highspeedroad/five/value_listenable.dart';
@@ -225,10 +225,15 @@ class FiveState extends State<Five> with SingleTickerProviderStateMixin {
     SettingItem(Icons.content_copy, 'Transition', transition, ""),
 
     SettingItem(Icons.content_copy, '相機、相簿使用', gallery, ""),
+
+    SettingItem(Icons.content_copy, '倒數計時器', timer, ""),
   ];
 
   snackbar(BuildContext context) {
-    var controller = AnimationController(vsync: this, duration: Duration(milliseconds: 100),);
+    var controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 100),
+    );
 
     Animation animation = Tween(begin: 0.0, end: 100.0).animate(controller);
 
@@ -403,16 +408,22 @@ drawer(BuildContext context) {
 }
 
 animateDialog(BuildContext context) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => DialogPage()));
+  Navigator.push(
+      context, MaterialPageRoute(builder: (context) => DialogPage()));
 }
 
 transition(BuildContext context) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) => Transition()));
+  Navigator.push(
+      context, MaterialPageRoute(builder: (context) => Transition()));
 }
 
 gallery(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) => Gallery()));
 }
 
+timer(BuildContext context) {
+  Navigator.push(
+      context, MaterialPageRoute(builder: (context) => CountDownTimer()));
+}
 
 empty() {}

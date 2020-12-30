@@ -40,14 +40,15 @@ class SwipeDialogState extends State<SwipeDialog>
                 transitionDuration: const Duration(milliseconds: 200),
 
                 // 設置 Dialog 的動畫、UI
-                pageBuilder: (BuildContext context, Animation animation, Animation secondaryAnimation) {
+                pageBuilder: (BuildContext context, Animation animation,
+                    Animation secondaryAnimation) {
                   // Dialog UI
-                  return Container(alignment: Alignment.bottomCenter, child: dialog());
+                  return Container(
+                      alignment: Alignment.bottomCenter, child: dialog());
                 },
 
-                // Animation.value 預設為 1 -> 0
+                // Animation.value 預設為 0 -> 1
                 transitionBuilder: (ctx, animation, _, child) {
-
                   return FractionalTranslation(
                     /// Offset( 向右位移螢幕倍數距離 , 向下位移螢幕倍數距離 )
                     /// 設置 0 則代表位移距離為 0 (不位移)

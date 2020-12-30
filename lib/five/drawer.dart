@@ -16,92 +16,111 @@ class MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     phoneSize = MediaQuery.of(context).size;
     return Scaffold(
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-
-                /// IOS Switch Button
-                CupertinoSwitch(
-                  /// 當前顯示狀態
-                  value: bo1,
-                  /// 按下後的 function
-                  onChanged: (bool value) { setState(() { bo1 = !bo1; }); },
-                  /// 【開】背景底色
-                  activeColor: Colors.blue,
-                  /// 【關】背景底色
-                  trackColor: Colors.yellow,
-                ),
-
-                Container(
-                  height: 50,
-                  child: VerticalDivider(
-                    // 粗度
-                    thickness: 3,
-                    color: Colors.blue,
-                    // 左 margin
-                    indent: 0,
-                    // 右 margin
-                    endIndent: 0,
-                  ),
-                ),
-
-                /// IOS Switch Button
-                CupertinoSwitch(
-                  /// 當前顯示狀態
-                  value: bo2,
-                  /// 按下後的 function
-                  onChanged: (bool value) { setState(() { bo2 = !bo2; }); },
-                  /// 【開】背景底色
-                  activeColor: Colors.blue,
-                  /// 【關】背景底色
-                  trackColor: Colors.yellow,
-                ),
-
-              ],
-            ),
-            Container(
-              width: double.infinity,
-              margin: EdgeInsets.only(left: 5, right: 5),
-              decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2)),
-              child: Row(
+        body: Builder(
+          builder: (context) => Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  /// IOS Switch Button
+                  CupertinoSwitch(
+                    /// 當前顯示狀態
+                    value: bo1,
 
-                  /// 左側內容
-                  Expanded(
-                    child: Container(
-//                      alignment: Alignment.centerLeft,
-                      child: Column(
-                        children: [
-                          Text('這是中文', style: TextStyle(fontSize: 25)),
-                          Text('Chinese', style: TextStyle(fontSize: 20))
-                        ],
-                      ),
+                    /// 按下後的 function
+                    onChanged: (bool value) {
+                      setState(() {
+                        bo1 = !bo1;
+                        if (bo1 && bo2) {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      });
+                    },
+
+                    /// 【開】背景底色
+                    activeColor: Colors.blue,
+
+                    /// 【關】背景底色
+                    trackColor: Colors.yellow,
+                  ),
+
+                  Container(
+                    height: 50,
+                    child: VerticalDivider(
+                      // 粗度
+                      thickness: 3,
+                      color: Colors.blue,
+                      // 左 margin
+                      indent: 0,
+                      // 右 margin
+                      endIndent: 0,
                     ),
                   ),
 
-                  /// 中間 icon
-                  Icon(Icons.delete),
+                  /// IOS Switch Button
+                  CupertinoSwitch(
+                    /// 當前顯示狀態
+                    value: bo2,
 
-                  /// 右側內容
-                  Expanded(
-                    child: Container(
-//                      alignment: Alignment.centerLeft,
-                      child: Column(
-                        children: [
-                          Text('這是中文', style: TextStyle(fontSize: 25)),
-                          Text('Chinese', style: TextStyle(fontSize: 20))
-                        ],
-                      ),
-                    ),
+                    /// 按下後的 function
+                    onChanged: (bool value) {
+                      setState(() {
+                        bo2 = !bo2;
+                        if (bo1 && bo2) {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      });
+                    },
+
+                    /// 【開】背景底色
+                    activeColor: Colors.blue,
+
+                    /// 【關】背景底色
+                    trackColor: Colors.yellow,
                   ),
                 ],
               ),
-            ),
-          ],
+              Container(
+                width: double.infinity,
+                margin: EdgeInsets.only(left: 5, right: 5),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 2)),
+                child: Row(
+                  children: [
+                    /// 左側內容
+                    Expanded(
+                      child: Container(
+//                      alignment: Alignment.centerLeft,
+                        child: Column(
+                          children: [
+                            Text('這是中文', style: TextStyle(fontSize: 25)),
+                            Text('Chinese', style: TextStyle(fontSize: 20))
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    /// 中間 icon
+                    Icon(Icons.delete),
+
+                    /// 右側內容
+                    Expanded(
+                      child: Container(
+//                      alignment: Alignment.centerLeft,
+                        child: Column(
+                          children: [
+                            Text('這是中文', style: TextStyle(fontSize: 25)),
+                            Text('Chinese', style: TextStyle(fontSize: 20))
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         drawer: myDrawer());
   }

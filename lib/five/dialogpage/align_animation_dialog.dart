@@ -10,19 +10,17 @@ class AlignAnimationDialogState extends State<AlignAnimationDialog>
     with TickerProviderStateMixin {
   Size size;
 
-  AnimationController _controller;
+  bool state = false;
 
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
 
-    _controller = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    );
-    Animation<AlignmentGeometry> animation =
-    Tween(begin: Alignment(0.0, 1.0), end: Alignment(0.0, 0.0))
-        .animate(_controller);
+    var controller =
+        AnimationController(vsync: this, duration: Duration(seconds: 1))
+          ..repeat();
+    Animation<double> myAnimation =
+        Tween(begin: 0.0, end: 1.0).animate(controller);
 
     return Scaffold(
       backgroundColor: Colors.yellow,
@@ -42,9 +40,37 @@ class AlignAnimationDialogState extends State<AlignAnimationDialog>
               style: TextStyle(fontSize: 20),
             ),
             onPressed: () {
-              _controller.forward();
+              state = !state;
+              showGeneralDialog(
+                context: context,
+                barrierLabel: "",
+                // 點擊空白處是否關閉
+                barrierDismissible: true,
+                // 動畫時間
+                transitionDuration: const Duration(milliseconds: 1000),
 
-              return AlignTransition(alignment: animation, child: dialog());
+                // 設置 Dialog 的動畫、UI
+                pageBuilder: (BuildContext context, Animation _,
+                    Animation secondaryAnimation) {
+                  // Dialog UI
+                  return Container(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      color: Colors.black,
+                    ),
+                  );
+                },
+                transitionBuilder: (ctx, animation2, _, child) {
+                  return FractionalTranslation(
+                    /// Offset( 向右位移螢幕倍數距離 , 向下位移螢幕倍數距離 )
+                    /// 設置 0 則代表位移距離為 0 (不位移)
+                    translation: Offset(0, 1 - animation2.value),
+                    child: child,
+                  );
+                },
+              );
             },
           ),
         ),
